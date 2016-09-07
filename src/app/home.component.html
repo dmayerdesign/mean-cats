@@ -1,0 +1,99 @@
+<div class="card" *ngIf="isLoading">
+	<h5 class="card-header">Loading...</h5>
+	<div class="card-block text-xs-center">
+		<i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
+	</div>
+</div>
+
+<search-box class="card" *ngIf="!isLoading" (update)="term = $event" [set]="set"></search-box>
+
+<div class="card" *ngIf="!isLoading">
+	<h5 class="card-header" highlight>Showing {{catsShowing}} cats</h5>
+	<div class="card-block">
+		<h5>Filter by age</h5>
+		<select (change)="setAgeFilter($event.target.value)">
+			<option *ngFor="let range of ageFilterRanges">{{range}}</option>
+		</select>
+		<table class="table table-bordered table-striped">
+			<thead class="thead-default">
+				<tr>
+					<th (click)="toggleOrder('name')">Name 
+						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'name')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'name')" class="fa fa-angle-down"></i>
+					</th>
+					<th (click)="toggleOrder('age')">Age 
+						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'age')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'age')" class="fa fa-angle-down"></i>
+					</th>
+					<th (click)="toggleOrder('weight')">Weight 
+						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'weight')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'weight')" class="fa fa-angle-down"></i>
+					</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody *ngIf="cats.length === 0">
+				<tr>
+					<td colspan="4">There are no cats in the DB. Add a new cat below.</td>
+				</tr>	
+			</tbody>
+			<tbody *ngIf="!isEditing">
+				<tr #catsList *ngFor="let cat of cats
+					| orderBy : [catsFilter.order]
+					| age : [ageFilter]
+					| search : ['name',term]">
+					<td>{{cat.name}}</td>
+					<td>{{cat.age}}</td>
+					<td>{{cat.weight}}</td>
+					<td>
+						<button class="btn btn-sm btn-warning" (click)="enableEditing(cat)"><i class="fa fa-pencil"></i> Edit</button> <button class="btn btn-sm btn-danger" (click)="submitRemove(cat)"><i class="fa fa-trash"></i> Delete</button>
+					</td>
+				</tr>	
+			</tbody>
+			<tbody *ngIf="isEditing">
+				<tr>
+					<td colspan="4">
+						<form class="form-inline" #form="ngForm" (ngSubmit)="submitEdit(cat)" style="display:inline">
+							<div class="form-group">
+							    <input class="form-control" type="text" name="name" [(ngModel)]="cat.name" placeholder="Name" required>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="number" name="age" [(ngModel)]="cat.age" placeholder="Age" min="0" required>
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="number" name="weight" [(ngModel)]="cat.weight" placeholder="Weight" step="any" min="0" required>
+							</div>
+							<button class="btn btn-sm btn-primary" type="submit" [disabled]="!form.form.valid"><i class="fa fa-floppy-o"></i> Save</button>
+						</form>
+						<button class="btn btn-sm btn-warning" (click)="cancelEditing()"><i class="fa fa-times"></i> Cancel</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div [hidden]="!infoMsg.body" class="alert alert-{{infoMsg.type}} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			<strong>Message:</strong> {{infoMsg.body}}
+		</div>
+	</div>
+</div>
+<div class="card" *ngIf="!isEditing">
+	<h5 class="card-header">Add new cat</h5>
+	<div class="card-block">
+		<form class="form-inline" [formGroup]="addCatForm" (ngSubmit)="submitAdd()" style="text-align:center">
+			<div class="form-group">
+			    <input class="form-control" type="text" name="name" formControlName="name" placeholder="Name">
+			</div>
+			<div class="form-group">
+				<input class="form-control" type="number" name="age" formControlName="age" placeholder="Age" min="0">
+			</div>
+			<div class="form-group">
+				<input class="form-control" type="number" name="weight" formControlName="weight" placeholder="Weight" step="any" min="0">
+			</div>
+			<button class="btn btn-primary" type="submit" [disabled]="!addCatForm.valid"><i class="fa fa-floppy-o"></i> Add</button>
+		</form>
+	</div>
+
+</div>
+
