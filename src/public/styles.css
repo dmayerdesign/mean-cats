@@ -22,9 +22,18 @@ a:hover .fa-heart {
 	color: #cc0000;
 }
 
+/*.card-block {
+	max-height: 300px;
+	overflow: scroll;
+}*/
+
 table th, table tr td {
 	text-align: left;
 	width: 25%;
+}
+
+tr {
+	padding: 20px 0;
 }
 
 th {
@@ -38,4 +47,13 @@ th {
 	left: 25%;
 	width: 50%;
 	opacity: 0.9;
+}
+
+.loading-cats {
+	position: absolute;
+	z-index: 999;
+	top: 60px;
+	left: 50%;
+	width: 60px;
+	margin-left: -30px;
 }

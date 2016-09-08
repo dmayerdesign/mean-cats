@@ -6,7 +6,7 @@ import { CatService } from './services/cat.service';
 import { UIHelper, Utilities } from './services/app.service';
 import { OrderBy } from './pipes/orderby.pipe.ts';
 import { AgePipe } from './pipes/age.pipe.ts';
-import { SearchPipe } from './pipes/search.pipe.ts';
+//import { SearchPipe } from './pipes/search.pipe.ts';
 import { SearchBox } from './search-box.component';
 
 @Component({
@@ -14,22 +14,21 @@ import { SearchBox } from './search-box.component';
 	templateUrl: 'app/home.component.html',
 	providers: [CatService, UIHelper, Utilities],
 	directives: [SearchBox],
-	pipes: [OrderBy, AgePipe, SearchPipe]
+	pipes: [OrderBy, AgePipe]
 })
 
 export class HomeComponent implements OnInit {
-	@ViewChildren('catsList') $cats;
-	@Input() term;
+	@ViewChildren('catsVisible') $cats = [];
+	@Input() search;
 	@Output() set:string = "cats";
 	
 	private cats = [];
 	private cat = {};
 	private catsShowing:number;
-	private catsFilter = {order:"-name"};
-
-	private ageFilter = "all";
+	private catsFilter = {order: "-name"};
 
 	private isLoading = true;
+	private loadingCats = false;
 	private options = new RequestOptions({ headers: new Headers({ 'Content-Type': 'application/json', 'charset': 'UTF-8' }) });
 
 	private isEditing = false;
@@ -41,11 +40,14 @@ export class HomeComponent implements OnInit {
 	private age = new FormControl("", Validators.required);
 	private weight = new FormControl("", Validators.required);
 
+	private ageFilterRange = "all";
 	private ageFilterRanges:string[] = [
 		"all",
-		"young",
-		"old"
+		"younger than",
+		"exactly",
+		"older than"
 	];
+	private ageFilterThreshold:any = null;
 
 	constructor(
 				private http: Http,
@@ -62,12 +64,12 @@ export class HomeComponent implements OnInit {
 	ngOnInit() {
 		this.updateView();
 
-		/** Check for the current order of cats (i.e. the current state of the CatsFilter) **/
+		/** Check for the current order of cats (i.e. the current value of CatsFilter) **/
 		!this.utilities.existsLocally('CatsFilter')
 			? localStorage.setItem('CatsFilter', JSON.stringify(this.catsFilter))
 			: this.catsFilter = JSON.parse(localStorage['CatsFilter']);
 
-		this.catService.loadCats().subscribe(
+		this.catService.loadCats(10).subscribe(
 			data => {
 				this.isLoading = false;
 				this.cats = data;
@@ -142,24 +144,23 @@ export class HomeComponent implements OnInit {
 		window.setTimeout(() => this.infoMsg.body = "", time);
 	}
 
-
+/***********/
+/***********/
 
 	countCatsShowing() {
-		let counterFunc = window.setInterval(() => {
-			if (counter() > 0) {
-				window.clearInterval(counterFunc); // doesn't work for some reason
-			}
-		}, 300);
-
 		let counter = ():number => {
-			if (this.$cats && this.$cats.toArray() && this.$cats.toArray().length) {
-				this.catsShowing = this.$cats.toArray().length;
-				return this.catsShowing;
+			if (this.$cats && this.$cats.length) {
+				this.catsShowing = this.$cats.length;
 			}
 			else {
-				return 0;
+				window.clearInterval(counterFunc);
+				this.catsShowing = 0;
 			}
-		}
+
+			return this.catsShowing;
+		};
+
+		let counterFunc = window.setInterval(counter, 100);
 	}
 
 	updateView() {
@@ -167,8 +168,16 @@ export class HomeComponent implements OnInit {
 		this.countCatsShowing();
 	}
 
-	setAgeFilter(range:string) {
-		this.ageFilter = range;
+	setAgeFilterRange(range:string) {
+		this.ageFilterRange = range;
+		if (range == "all")
+			this.ageFilterThreshold = null;
+	}
+
+	setAgeFilterThreshold(t:number) {
+		this.ageFilterThreshold = t;
+		if (this.ageFilterRange == "all")
+			this.ageFilterRange = "exactly";
 	}
 
 	toggleOrder(attr) {
@@ -185,7 +194,7 @@ export class HomeComponent implements OnInit {
 		localStorage.setItem('CatsFilter', JSON.stringify(this.catsFilter));
 	}
 
-	isAscending(order) {
+	isAscending(order:string) {
 		if (order.indexOf("+") > -1) {
 			return true;
 		} else {
@@ -199,6 +208,19 @@ export class HomeComponent implements OnInit {
 		} else {
 			return false;
 		}
+	}
+
+	databaseSearch(search:string) {
+		this.loadingCats = true;
+		this.catService.searchCats(search)
+			.subscribe(
+				results => {
+					this.cats = results;
+					this.loadingCats = false;
+					this.updateView();
+				},
+				error => console.error(error)
+		);
 	}
 
 }

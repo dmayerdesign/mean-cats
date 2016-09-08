@@ -6,6 +6,8 @@ import { Pipe } from '@angular/core';
 })
 export class SearchPipe {
 	transform(arr, [field, term]){
-		return arr.filter(item => item[field].toLowerCase().startsWith(term.toLowerCase()) );
+		if (Array.isArray(arr)) {
+			return arr.filter(item => item[field].toLowerCase().startsWith(term.toLowerCase()) );
+		}
 	}
 }

@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 var mongoose = require('mongoose');
+
 mongoose.connect('mongodb://localhost:27017/test');
 var db = mongoose.connection;
 mongoose.Promise = global.Promise;
@@ -25,6 +26,7 @@ var catSchema = mongoose.Schema({
     weight: Number,
     age: Number
 });
+
 var Cat = mongoose.model('Cat', catSchema);
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -33,10 +35,11 @@ db.once('open', function() {
 
     // select all
     app.get('/cats', function(req, res) {
+        var limit = parseInt(req.query.show, 10) || 0;
         Cat.find({}, function(err, docs) {
             if(err) return console.error(err);
             res.json(docs);
-        });
+        }).limit(limit);
     });
 
     // count all
@@ -54,6 +57,15 @@ db.once('open', function() {
             if(err) return console.error(err);
             res.status(200).json(obj);
         });
+    });
+
+    // find by text search
+    app.get('/cats/search/:search', function(req, res) {
+        var limit = parseInt(req.query.show, 10) || 0;
+        Cat.find({ "name": { "$regex": req.params.search, "$options": "i" } }, (err, docs) => {
+            if(err) return console.error(err);
+            res.json(docs);
+        }).limit(limit);
     });
 
     // find by id

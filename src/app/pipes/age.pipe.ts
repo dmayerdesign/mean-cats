@@ -1,18 +1,32 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { UIHelper, Utilities } from '../services/app.service';
 
-@Pipe({ name: 'age', pure: false })
-
+@Pipe({
+  name: 'age',
+  pure: false
+})
 export class AgePipe implements PipeTransform {
-	newCats = [];
-  transform(cats, [config = "young"]):any {
-  	if (config == "old")
-    	this.newCats = cats.filter(cat => cat.age > 10);
-    else if (config == "young")
-    	this.newCats = cats.filter(cat => cat.age <= 10);
-    else
-    	this.newCats = cats;
+	private $cats = [];
+  transform(cats, [config = ["older than", 10]]):any {
 
-    return this.newCats;
+    if (!Array.isArray(cats)) {
+      return null;
+    }
+
+    switch (config[0]) {
+      case "older than":
+        this.$cats = cats.filter(cat => cat.age > config[1]);
+        break;
+      case "younger than":
+        this.$cats = cats.filter(cat => cat.age < config[1]);
+        break;
+      case "exactly":
+        this.$cats = cats.filter(cat => cat.age == config[1]);
+        break;
+      default:
+        this.$cats = cats;
+    }
+
+    return this.$cats;
   }
 }
