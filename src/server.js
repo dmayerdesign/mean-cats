@@ -36,10 +36,27 @@ db.once('open', function() {
     // select all
     app.get('/cats', function(req, res) {
         var limit = parseInt(req.query.show, 10) || 0;
+        var offset = parseInt(req.query.offset, 10) || 0;
+
         Cat.find({}, function(err, docs) {
             if(err) return console.error(err);
             res.json(docs);
-        }).limit(limit);
+        }).skip(offset).limit(limit);
+    });
+
+    // find by name search
+    app.get('/cats/get', function(req, res) {
+        var limit = parseInt(req.query.show, 10) || 0;
+        var offset = parseInt(req.query.offset, 10) || 0;
+        var search = req.query.search;
+
+        var query = (typeof search === "string" && search.length) ? { "name": { "$regex": search, "$options": "i" } } : {};
+        console.log(query);
+
+        Cat.find(query, (err, docs) => {
+            if(err) return console.error(err);
+            res.json(docs);
+        }).skip(offset).limit(limit);
     });
 
     // count all
@@ -57,15 +74,6 @@ db.once('open', function() {
             if(err) return console.error(err);
             res.status(200).json(obj);
         });
-    });
-
-    // find by text search
-    app.get('/cats/search/:search', function(req, res) {
-        var limit = parseInt(req.query.show, 10) || 0;
-        Cat.find({ "name": { "$regex": req.params.search, "$options": "i" } }, (err, docs) => {
-            if(err) return console.error(err);
-            res.json(docs);
-        }).limit(limit);
     });
 
     // find by id

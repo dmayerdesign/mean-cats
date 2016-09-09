@@ -19,4 +19,12 @@ export class Utilities {
   		return true;
   	}
   }
+
+  contains(a,b) {
+    if (a.indexOf(b) > -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

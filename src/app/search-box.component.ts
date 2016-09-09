@@ -12,7 +12,16 @@ export class SearchBox {
 	@Output() update = new EventEmitter();
 	@Input() set: string;
 
+	typing:boolean;
+
 	submitSearch($event) {
-		if ($event.keyCode === 13) { this.update.emit($event.target.value) }
+		let search:string = $event.target.value;
+		let keyCode:number = $event.keyCode;
+
+		if (search.length === 1 && keyCode === 8)
+			this.update.emit("");
+
+		if (keyCode === 13)
+			this.update.emit(search);
 	}
 }

@@ -8,6 +8,8 @@
 <search-box class="card" *ngIf="!isLoading" (update)="databaseSearch($event)" [set]="set"></search-box>
 <!-- <input class="db-search" (keyup)="databaseSearch($event.target.value)" *ngIf="!isLoading" placeholder="search"> -->
 
+<button (click)="showMore(10, cats.length)">Show more</button>
+
 <div class="card" *ngIf="!isLoading">
 	<h5 class="card-header" highlight>Showing {{catsShowing}} cat<span *ngIf="catsShowing != 1">s</span></h5>
 	<div class="card-block">
@@ -22,16 +24,16 @@
 			<thead class="thead-default">
 				<tr>
 					<th (click)="toggleOrder('name')">Name 
-						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'name')" class="fa fa-angle-up"></i>
-						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'name')" class="fa fa-angle-down"></i>
+						<i *ngIf="isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'name')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'name')" class="fa fa-angle-down"></i>
 					</th>
 					<th (click)="toggleOrder('age')">Age 
-						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'age')" class="fa fa-angle-up"></i>
-						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'age')" class="fa fa-angle-down"></i>
+						<i *ngIf="isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'age')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'age')" class="fa fa-angle-down"></i>
 					</th>
 					<th (click)="toggleOrder('weight')">Weight 
-						<i *ngIf="isAscending(catsFilter.order) && contains(catsFilter.order, 'weight')" class="fa fa-angle-up"></i>
-						<i *ngIf="!isAscending(catsFilter.order) && contains(catsFilter.order, 'weight')" class="fa fa-angle-down"></i>
+						<i *ngIf="isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'weight')" class="fa fa-angle-up"></i>
+						<i *ngIf="!isAscending(catsFilter.order) && utilities.contains(catsFilter.order, 'weight')" class="fa fa-angle-down"></i>
 					</th>
 					<th>Actions</th>
 				</tr>

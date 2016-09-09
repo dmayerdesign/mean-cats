@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, Input, Output } from '@angular/core';
+import { Component, OnInit, ViewChildren, ViewChild, Input, Output } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
@@ -19,13 +19,14 @@ import { SearchBox } from './search-box.component';
 
 export class HomeComponent implements OnInit {
 	@ViewChildren('catsVisible') $cats = [];
-	@Input() search;
 	@Output() set:string = "cats";
 	
 	private cats = [];
 	private cat = {};
+	private catsLoaded:number = 10;
 	private catsShowing:number;
 	private catsFilter = {order: "-name"};
+	private searchText:string;
 
 	private isLoading = true;
 	private loadingCats = false;
@@ -63,13 +64,14 @@ export class HomeComponent implements OnInit {
 
 	ngOnInit() {
 		this.updateView();
+		this.helper.setTitle("Your cats");
 
 		/** Check for the current order of cats (i.e. the current value of CatsFilter) **/
 		!this.utilities.existsLocally('CatsFilter')
 			? localStorage.setItem('CatsFilter', JSON.stringify(this.catsFilter))
 			: this.catsFilter = JSON.parse(localStorage['CatsFilter']);
 
-		this.catService.loadCats(10).subscribe(
+		this.catService.loadCats("", 10).subscribe(
 			data => {
 				this.isLoading = false;
 				this.cats = data;
@@ -105,8 +107,6 @@ export class HomeComponent implements OnInit {
 		this.isEditing = false;
 		this.cat = {};
 		this.sendInfoMsg("item editing cancelled.", "warning");
-		// reload the cats to reset the editing
-		this.catService.loadCats();
 	}
 
 	submitEdit(cat) {
@@ -164,7 +164,6 @@ export class HomeComponent implements OnInit {
 	}
 
 	updateView() {
-		this.helper.setTitle('Total cats: ' + this.cats.length);
 		this.countCatsShowing();
 	}
 
@@ -202,25 +201,43 @@ export class HomeComponent implements OnInit {
 		}
 	}
 
-	contains(a,b) {
-		if (a.indexOf(b) > -1) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	databaseSearch(search:string) {
 		this.loadingCats = true;
-		this.catService.searchCats(search)
+		this.catService.loadCats(search, 10)
 			.subscribe(
 				results => {
 					this.cats = results;
 					this.loadingCats = false;
+					this.searchText = search;
 					this.updateView();
 				},
 				error => console.error(error)
 		);
+	}
+
+	showMore(increase:number, offset:number) {
+		if (localStorage["searching"] == "true") {
+			this.catService.loadCats(this.searchText, increase, offset).subscribe(
+				res => {
+					this.isLoading = false;
+					console.log(res);
+					this.cats = this.cats.concat(res);
+					this.updateView();
+				},
+				error => console.log(error)
+			);
+		}
+		else {
+			this.catService.loadCats("", increase, offset).subscribe(
+				res => {
+					this.isLoading = false;
+					console.log(res);
+					this.cats = this.cats.concat(res);
+					this.updateView();
+				},
+				error => console.log(error)
+			);
+		}
 	}
 
 }
