@@ -11,6 +11,7 @@ import { HomeComponent } from './home.component';
 import { SearchBox } from './search-box.component.ts';
 
 import { UserService } from './services/user.service';
+import { SearchService } from './services/search.service';
 
 import { HighlightDirective } from './directives/highlight.directive';
 
@@ -26,19 +27,19 @@ const routing = RouterModule.forRoot([
 @NgModule({
     imports: [
       BrowserModule,
-    	routing,
+      routing,
       HttpModule,
-    	FormsModule,
-    	ReactiveFormsModule
+      FormsModule,
+      ReactiveFormsModule
     ],
     declarations: [
       AppComponent,
-    	AboutComponent,
+      AboutComponent,
       LibraryComponent,
-    	HomeComponent,
+      HomeComponent,
       HighlightDirective
     ],
-    providers: [Title, UserService, SearchBox],
+    providers: [Title, UserService, SearchBox, SearchService],
     bootstrap: [AppComponent]
 })
 

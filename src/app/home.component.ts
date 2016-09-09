@@ -6,7 +6,6 @@ import { CatService } from './services/cat.service';
 import { UIHelper, Utilities } from './services/app.service';
 import { OrderBy } from './pipes/orderby.pipe.ts';
 import { AgePipe } from './pipes/age.pipe.ts';
-//import { SearchPipe } from './pipes/search.pipe.ts';
 import { SearchBox } from './search-box.component';
 
 @Component({
@@ -216,28 +215,17 @@ export class HomeComponent implements OnInit {
 	}
 
 	showMore(increase:number, offset:number) {
-		if (localStorage["searching"] == "true") {
-			this.catService.loadCats(this.searchText, increase, offset).subscribe(
-				res => {
-					this.isLoading = false;
-					console.log(res);
-					this.cats = this.cats.concat(res);
-					this.updateView();
-				},
-				error => console.log(error)
-			);
-		}
-		else {
-			this.catService.loadCats("", increase, offset).subscribe(
-				res => {
-					this.isLoading = false;
-					console.log(res);
-					this.cats = this.cats.concat(res);
-					this.updateView();
-				},
-				error => console.log(error)
-			);
-		}
+		let search = (localStorage["searching"] == "true") ? this.searchText : "";
+
+		this.catService.loadCats(this.searchText, increase, offset).subscribe(
+			res => {
+				this.isLoading = false;
+				console.log(res);
+				this.cats = this.cats.concat(res);
+				this.updateView();
+			},
+			error => console.log(error)
+		);
 	}
 
 }

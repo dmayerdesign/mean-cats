@@ -6,7 +6,6 @@
 </div>
 
 <search-box class="card" *ngIf="!isLoading" (update)="databaseSearch($event)" [set]="set"></search-box>
-<!-- <input class="db-search" (keyup)="databaseSearch($event.target.value)" *ngIf="!isLoading" placeholder="search"> -->
 
 <button (click)="showMore(10, cats.length)">Show more</button>
 

@@ -13,18 +13,17 @@ export class UIHelper {
 @Injectable()
 export class Utilities {
   existsLocally(localItem: string) {
-  	if (typeof localStorage[localItem] === "undefined" || !localStorage[localItem] || !localStorage[localItem].length) {
-  		return false;
-  	} else {
-  		return true;
-  	}
+    if (typeof localStorage[localItem] === "undefined" || !localStorage[localItem] || !localStorage[localItem].length) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   contains(a,b) {
-    if (a.indexOf(b) > -1) {
+    if (a.indexOf(b) > -1)
       return true;
-    } else {
+    else
       return false;
-    }
   }
 }
